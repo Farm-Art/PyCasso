@@ -14,22 +14,18 @@ class Canvas(QtWidgets.QGraphicsScene):
         pen = QtGui.QPen(self.window.current_color)
         pen.setWidth(self.window.thickness)
         self.painter.setPen(pen)
+        brush = QtGui.QBrush(self.window.fill_color)
+        self.painter.setBrush(brush)
         if self.tool == 'pencil':
             self.painter.drawPoint(event.scenePos())
             self.prev_point = event.scenePos()
         elif self.tool == 'rectangle':
-            brush = QtGui.QBrush(self.window.fill_color)
-            self.painter.setBrush(brush)
             self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
             self.rect = self.addRect(self.rect)
         elif self.tool == 'line':
-            brush = QtGui.QBrush(self.window.fill_color)
-            self.painter.setBrush(brush)
             self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
             self.line = self.addLine(self.line)
         elif self.tool == 'ellipse':
-            brush = QtGui.QBrush(self.window.fill_color)
-            self.painter.setBrush(brush)
             self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
             self.ellipse = self.addEllipse(self.ellipse)
         self.updateImage()
@@ -83,12 +79,6 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
         self.addItem(self.display_image)
         self.memory.append(self.image.copy())
-
-    def undo(self):
-        pass
-
-    def redo(self):
-        pass
 
     def updateImage(self):
         self.removeItem(self.display_image)

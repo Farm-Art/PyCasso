@@ -43,60 +43,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menuEdit = QtWidgets.QMenu(self.menubar)
-        self.menuEdit.setObjectName("menuEdit")
-        self.menuView = QtWidgets.QMenu(self.menubar)
-        self.menuView.setObjectName("menuView")
         MainWindow.setMenuBar(self, self.menubar)
 
         self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self, self.statusbar)
 
-        self.actionNavigator = QtWidgets.QAction(self)
-        self.actionNavigator.setCheckable(True)
-        self.actionNavigator.setObjectName("actionNavigator")
-
-        self.actionColor_management = QtWidgets.QAction(self)
-        self.actionColor_management.setCheckable(True)
-        self.actionColor_management.setObjectName("actionColor_management")
-
-        self.actionTools = QtWidgets.QAction(self)
-        self.actionTools.setCheckable(True)
-        self.actionTools.setObjectName("actionTools")
-
-        self.actionLayers = QtWidgets.QAction(self)
-        self.actionLayers.setCheckable(True)
-        self.actionLayers.setObjectName("actionLayers")
-
-        self.actionLayers_2 = QtWidgets.QAction(self)
-        self.actionLayers_2.setCheckable(True)
-        self.actionLayers_2.setObjectName("actionLayers_2")
-
-        self.actionUndo = QtWidgets.QAction(self)
-        self.actionUndo.setObjectName("actionUndo")
-        self.actionUndo.triggered.connect(self.undo)
-        self.actionUndo.setShortcut('Ctrl+Z')
-
-        self.actionRedo = QtWidgets.QAction(self)
-        self.actionRedo.setObjectName("actionRedo")
-        self.actionRedo.triggered.connect(self.redo)
-        self.actionRedo.setShortcut('Ctrl+Y')
-
-        self.actionSelect_all = QtWidgets.QAction(self)
-        self.actionSelect_all.setObjectName("actionSelect_all")
-
-        self.actionDeselect = QtWidgets.QAction(self)
-        self.actionDeselect.setObjectName("actionDeselect")
-
-        self.actionInvert_selection = QtWidgets.QAction(self)
-        self.actionInvert_selection.setObjectName("actionInvert_selection")
-
         self.actionNew = QtWidgets.QAction(self)
         self.actionNew.setObjectName("actionNew")
-
-        self.actionOpen = QtWidgets.QAction(self)
-        self.actionOpen.setObjectName("actionOpen")
+        self.actionNew.triggered.connect(self.ask_for_file)
 
         self.actionSave = QtWidgets.QAction(self)
         self.actionSave.setObjectName("actionSave")
@@ -107,25 +62,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionQuit.triggered.connect(self.close)
 
         self.menuFile.addAction(self.actionNew)
-        self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
-        self.menuEdit.addAction(self.actionUndo)
-        self.menuEdit.addAction(self.actionRedo)
-        self.menuEdit.addSeparator()
-        self.menuEdit.addAction(self.actionSelect_all)
-        self.menuEdit.addAction(self.actionDeselect)
-        self.menuEdit.addAction(self.actionInvert_selection)
-        self.menuView.addAction(self.actionNavigator)
-        self.menuView.addAction(self.actionColor_management)
-        self.menuView.addAction(self.actionTools)
-        self.menuView.addAction(self.actionLayers)
-        self.menuView.addAction(self.actionLayers_2)
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuEdit.menuAction())
-        self.menubar.addAction(self.menuView.menuAction())
 
     def initToolbox(self):
         self.toolBox = QtWidgets.QDockWidget(self)
@@ -447,20 +388,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if ok:
             self.scene.image.save(path)
 
-    def undo(self):
-        try:
-            self.scene.undo()
-        except IndexError:
-            pass
-        except TypeError:
-            pass
-
-    def redo(self):
-        try:
-            self.scene.redo()
-        except IndexError:
-            pass
-
     def set_tool(self):
         for btn in self.tool_buttons:
             btn.setChecked(False)
@@ -470,18 +397,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_thickness(self):
         self.thickness = self.sender().value()
 
-    def set_fill(self):
-        color = QtWidgets.QColorDialog.getColor()
-        if color.isValid():
-            self.fill_color = color
-            self.sender().setStyleSheet('background-color: ' + color.name())
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
-        self.menuView.setTitle(_translate("MainWindow", "View"))
         self.toolBox.setWindowTitle(_translate("MainWindow", "Tools"))
         self.toolProperties.setWindowTitle(_translate("MainWindow", "Tool properties"))
         self.colorManagement.setWindowTitle(_translate("MainWindow", "Color Management"))
@@ -496,29 +415,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.alpha_lbl_hsv.setText(_translate("MainWindow", "A"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.hsv_color_sliders), _translate("MainWindow", "HSV"))
         self.color_pick_btn.setText(_translate("MainWindow", "Pick with dialog"))
-        self.actionColor_management.setText(_translate("MainWindow", "Color management"))
-        self.actionColor_management.setToolTip(_translate("MainWindow", "Color preset palette and custom color sliders"))
-        self.actionTools.setText(_translate("MainWindow", "Tools"))
-        self.actionTools.setToolTip(_translate("MainWindow", "Drawing tools"))
-        self.actionUndo.setText(_translate("MainWindow", "Undo"))
-        self.actionUndo.setToolTip(_translate("MainWindow", "Undo last action"))
-        self.actionRedo.setText(_translate("MainWindow", "Redo"))
-        self.actionRedo.setToolTip(_translate("MainWindow", "Redo last reverted action"))
-        self.actionSelect_all.setText(_translate("MainWindow", "Select all"))
-        self.actionSelect_all.setToolTip(_translate("MainWindow", "Select all pixels"))
-        self.actionDeselect.setText(_translate("MainWindow", "Deselect"))
-        self.actionDeselect.setToolTip(_translate("MainWindow", "Reset selection"))
-        self.actionInvert_selection.setText(_translate("MainWindow", "Invert selection"))
-        self.actionInvert_selection.setToolTip(_translate("MainWindow", "Selects only currently unselected pixels"))
         self.actionNew.setText(_translate("MainWindow", "New"))
         self.actionNew.setToolTip(_translate("MainWindow", "Create a new file and open it immediately"))
-        self.actionOpen.setText(_translate("MainWindow", "Open"))
-        self.actionOpen.setToolTip(_translate("MainWindow", "Load an existing file"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setToolTip(_translate("MainWindow", "Save current file"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setToolTip(_translate("MainWindow", "Shutdown program"))
 
+    def ask_for_file(self):
+        dialog = NewFileDialog(self)
+
+        self.viewport.close()
+        self.scene.clear()
+        self.viewport = QtWidgets.QGraphicsView(self.scene, self)
+        self.central_layout.addWidget(self.viewport)
+        self.viewport.show()
+        self.viewport.setMinimumSize(300, 300)
 
 
 class NewFileDialog(QtWidgets.QDialog):
@@ -591,68 +503,3 @@ class NewFileDialog(QtWidgets.QDialog):
     def accept(self):
         super().accept()
         self.parent().load_image(self.source_input.text() if self.open_radio.isChecked() else None)
-
-
-class OpacityFillDialog(QtWidgets.QDialog):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-
-    def setupUi(self, Dialog):
-        self.setWindowTitle('Alpha layers is not supported')
-        Dialog.setObjectName("OpacityFillDialog")
-        Dialog.resize(300, 120)
-        self.color = QtGui.QColor(255, 255, 255)
-        self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setAcceptDrops(False)
-        self.label.setScaledContents(False)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setWordWrap(True)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-
-        self.gridLayout = QtWidgets.QGridLayout()
-        self.gridLayout.setObjectName("gridLayout")
-
-        self.filler_color_btn = QtWidgets.QPushButton(Dialog)
-        self.filler_color_btn.setMinimumSize(QtCore.QSize(20, 20))
-        self.filler_color_btn.setMaximumSize(QtCore.QSize(20, 20))
-        self.filler_color_btn.setText("")
-        self.filler_color_btn.setObjectName("pushButton")
-        self.filler_color_btn.setStyleSheet('background-color: #FFFFFF')
-        self.filler_color_btn.clicked.connect(self.setColor)
-        self.gridLayout.addWidget(self.filler_color_btn, 0, 0, 1, 1)
-
-        self.verticalLayout.addLayout(self.gridLayout)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum,
-                                           QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout.addItem(spacerItem)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName("buttonBox")
-        self.verticalLayout.addWidget(self.buttonBox)
-
-        self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
-    def setColor(self):
-        color = QtWidgets.QColorDialog.getColor()
-        if color.isValid():
-            self.filler_color_btn.setStyleSheet('background-color: ' + color.name())
-            self.color = color
-
-    def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("OpacityFillDialog", "Alpha layer is not supported"))
-        self.label.setText(_translate("Dialog", "Chosen format does not support alpha-channels (opacity). You can save the ."))
-
-    def accept(self):
-        super().accept()
-        return self.color
