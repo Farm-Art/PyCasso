@@ -15,6 +15,7 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWindow.setDockNestingEnabled(True)
 
         self.current_color = QtGui.QColor(0, 0, 0)
+        self.thickness = 10
 
         self.scene = Canvas(self)
         self.viewport = QtWidgets.QGraphicsView(self.scene)

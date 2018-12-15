@@ -5,28 +5,28 @@ class Canvas(QtWidgets.QGraphicsScene):
     def __init__(self, parent):
         super().__init__()
         self.window = parent
-        self.tool = 'line'
+        self.tool = 'pencil'
         self.painter = QtGui.QPainter()
         self.memory = []
 
     def mousePressEvent(self, event):
         self.painter.begin(self.image)
+        pen = QtGui.QPen(self.window.current_color)
+        pen.setWidth(self.window.thickness)
+        self.painter.setPen(pen)
         if self.tool == 'pencil':
-            pen = QtGui.QPen(self.window.current_color)
-            pen.setWidth(5)
-            self.painter.setPen(pen)
             self.painter.drawPoint(event.scenePos())
             self.prev_point = event.scenePos()
         elif self.tool == 'rectangle':
-            pen = QtGui.QPen(self.window.current_color)
-            self.painter.setPen(pen)
             self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
             self.rect = self.addRect(self.rect)
+            self.rect.setWidth(self.window.width())
         elif self.tool == 'line':
-            pen = QtGui.QPen(self.window.current_color)
-            self.painter.setPen(pen)
             self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
             self.line = self.addLine(self.line)
+        elif self.tool == 'ellipse':
+            self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
+            self.ellipse = self.addEllipse(self.ellipse)
         self.updateImage()
 
     def mouseMoveEvent(self, event):
@@ -47,6 +47,13 @@ class Canvas(QtWidgets.QGraphicsScene):
             x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
                      min(max(0, event.scenePos().y()), self.image.size().height() - 1)
             self.line.setLine(x1, y1, x2, y2)
+        elif self.tool == 'ellipse':
+            x1, y1 = min(max(0, self.ellipse.rect().x()), self.image.size().width() - 1),\
+                     min(max(0, self.ellipse.rect().y()), self.image.size().height() - 1)
+            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+            w, h = x2 - x1, y2 - y1
+            self.ellipse.setRect(x1, y1, w, h)
         self.updateImage()
 
     def mouseReleaseEvent(self, event):
@@ -59,6 +66,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         elif self.tool == 'line':
             self.removeItem(self.line)
             self.painter.drawLine(self.line.line())
+            self.painter.end()
+        elif self.tool == 'ellipse':
+            self.removeItem(self.ellipse)
+            self.painter.drawEllipse(self.ellipse.rect())
             self.painter.end()
         self.updateImage()
 
