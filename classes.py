@@ -18,13 +18,18 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.painter.drawPoint(event.scenePos())
             self.prev_point = event.scenePos()
         elif self.tool == 'rectangle':
+            brush = QtGui.QBrush(self.window.fill_color)
+            self.painter.setBrush(brush)
             self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
             self.rect = self.addRect(self.rect)
-            self.rect.setWidth(self.window.width())
         elif self.tool == 'line':
+            brush = QtGui.QBrush(self.window.fill_color)
+            self.painter.setBrush(brush)
             self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
             self.line = self.addLine(self.line)
         elif self.tool == 'ellipse':
+            brush = QtGui.QBrush(self.window.fill_color)
+            self.painter.setBrush(brush)
             self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
             self.ellipse = self.addEllipse(self.ellipse)
         self.updateImage()

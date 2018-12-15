@@ -15,7 +15,8 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWindow.setDockNestingEnabled(True)
 
         self.current_color = QtGui.QColor(0, 0, 0)
-        self.thickness = 10
+        self.thickness = 1
+        self.fill_color = QtGui.QColor(255, 255, 255)
 
         self.scene = Canvas(self)
         self.viewport = QtWidgets.QGraphicsView(self.scene)
@@ -30,9 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.initMenuBar()
         self.initToolbox()
         self.initToolProperties()
-        self.initNavigator()
         self.initColorManager()
-        self.initLayerManager()
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -133,25 +132,38 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolBox.setObjectName("toolBox")
         self.tools = QtWidgets.QWidget()
         self.tools.setObjectName("tools")
+        self.tools_grid = FlowLayout(self.tools)
         self.toolBox.setWidget(self.tools)
+        names = ['Pencil', 'Line', 'Rectangle', 'Ellipse']
+        self.tool_buttons = []
+        for i in range(4):
+            btn = QtWidgets.QPushButton(names[i], self)
+            btn.clicked.connect(self.set_tool)
+            self.tools_grid.addWidget(btn)
+            btn.setCheckable(True)
+            self.tool_buttons.append(btn)
+        self.tool_buttons[0].setChecked(True)
         MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(1), self.toolBox)
 
     def initToolProperties(self):
         self.toolProperties = QtWidgets.QDockWidget(self)
         self.toolProperties.setObjectName("toolProperties")
+
         self.properties = QtWidgets.QWidget()
         self.properties.setObjectName("properties")
+
+        self.properties_form = QtWidgets.QFormLayout(self.properties)
+        self.thickness_lbl = QtWidgets.QLabel('Thickness', self)
+
+        self.thickness_slider = QtWidgets.QSlider(self)
+        self.thickness_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.thickness_slider.setMinimum(1)
+        self.thickness_slider.setMaximum(50)
+        self.thickness_slider.valueChanged.connect(self.set_thickness)
+        self.properties_form.addWidget(self.thickness_lbl)
+        self.properties_form.addWidget(self.thickness_slider)
         self.toolProperties.setWidget(self.properties)
         MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(1), self.toolProperties)
-
-    def initNavigator(self):
-        self.navigatorDock = QtWidgets.QDockWidget(self)
-        self.navigatorDock.setObjectName("navigatorDock")
-        self.widget = QtWidgets.QWidget()
-        self.widget.setObjectName("widget")
-        self.navigatorDock.setWidget(self.widget)
-        MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(2),
-                                 self.navigatorDock)
 
     def initColorManager(self):
         self.colorManagement = QtWidgets.QDockWidget(self)
@@ -361,25 +373,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.colorManagement.setWidget(self.dockWidgetContents)
         MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(2), self.colorManagement)
 
-    def initLayerManager(self):
-        self.layerManagement = QtWidgets.QDockWidget(self)
-        self.layerManagement.setObjectName("layerManagement")
-        self.dockWidgetContents_5 = QtWidgets.QWidget()
-        self.dockWidgetContents_5.setObjectName("dockWidgetContents_5")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.dockWidgetContents_5)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.layersContainer = QtWidgets.QScrollArea(self.dockWidgetContents_5)
-        self.layersContainer.setWidgetResizable(True)
-        self.layersContainer.setObjectName("layersContainer")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 226, 87))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.layersContainer.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.layersContainer)
-        self.layerManagement.setWidget(self.dockWidgetContents_5)
-        MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(2),
-                                 self.layerManagement)
-
     def adjustColorSliders(self):
         rgb = {self.red_slider, self.green_slider, self.blue_slider, self.alpha_rgb_slider}
         hsv = {self.hue_slider, self.saturation_slider, self.value_slider, self.alpha_hsv_slider}
@@ -438,57 +431,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.current_color_btn.setStyleSheet('background-color: ' + color.name())
             self.adjustColorSliders()
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
-        self.menuView.setTitle(_translate("MainWindow", "View"))
-        self.toolBox.setWindowTitle(_translate("MainWindow", "Tools"))
-        self.toolProperties.setWindowTitle(_translate("MainWindow", "Tool properties"))
-        self.navigatorDock.setWindowTitle(_translate("MainWindow", "Navigator"))
-        self.colorManagement.setWindowTitle(_translate("MainWindow", "Color Management"))
-        self.red_lbl.setText(_translate("MainWindow", "R"))
-        self.green_lbl.setText(_translate("MainWindow", "G"))
-        self.blue_lbl.setText(_translate("MainWindow", "B"))
-        self.alpha_lbl_rgb.setText(_translate("MainWindow", "A"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.rgb_color_sliders), _translate("MainWindow", "RGB"))
-        self.hue_lbl.setText(_translate("MainWindow", "H"))
-        self.saturation_lbl.setText(_translate("MainWindow", "S"))
-        self.value_lbl.setText(_translate("MainWindow", "V"))
-        self.alpha_lbl_hsv.setText(_translate("MainWindow", "A"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.hsv_color_sliders), _translate("MainWindow", "HSV"))
-        self.color_pick_btn.setText(_translate("MainWindow", "Pick with dialog"))
-        self.layerManagement.setWindowTitle(_translate("MainWindow", "Layers and channels"))
-        self.actionNavigator.setText(_translate("MainWindow", "Navigator"))
-        self.actionNavigator.setToolTip(_translate("MainWindow", "Your current position relative to the image"))
-        self.actionColor_management.setText(_translate("MainWindow", "Color management"))
-        self.actionColor_management.setToolTip(_translate("MainWindow", "Color preset palette and custom color sliders"))
-        self.actionTools.setText(_translate("MainWindow", "Tools"))
-        self.actionTools.setToolTip(_translate("MainWindow", "Drawing tools"))
-        self.actionLayers.setText(_translate("MainWindow", "Tool properties"))
-        self.actionLayers.setToolTip(_translate("MainWindow", "Properties for currently selected tool"))
-        self.actionLayers_2.setText(_translate("MainWindow", "Layers"))
-        self.actionLayers_2.setToolTip(_translate("MainWindow", "Layer management (visibility, masks, channels)"))
-        self.actionUndo.setText(_translate("MainWindow", "Undo"))
-        self.actionUndo.setToolTip(_translate("MainWindow", "Undo last action"))
-        self.actionRedo.setText(_translate("MainWindow", "Redo"))
-        self.actionRedo.setToolTip(_translate("MainWindow", "Redo last reverted action"))
-        self.actionSelect_all.setText(_translate("MainWindow", "Select all"))
-        self.actionSelect_all.setToolTip(_translate("MainWindow", "Select all pixels"))
-        self.actionDeselect.setText(_translate("MainWindow", "Deselect"))
-        self.actionDeselect.setToolTip(_translate("MainWindow", "Reset selection"))
-        self.actionInvert_selection.setText(_translate("MainWindow", "Invert selection"))
-        self.actionInvert_selection.setToolTip(_translate("MainWindow", "Selects only currently unselected pixels"))
-        self.actionNew.setText(_translate("MainWindow", "New"))
-        self.actionNew.setToolTip(_translate("MainWindow", "Create a new file and open it immediately"))
-        self.actionOpen.setText(_translate("MainWindow", "Open"))
-        self.actionOpen.setToolTip(_translate("MainWindow", "Load an existing file"))
-        self.actionSave.setText(_translate("MainWindow", "Save"))
-        self.actionSave.setToolTip(_translate("MainWindow", "Save current file"))
-        self.actionQuit.setText(_translate("MainWindow", "Quit"))
-        self.actionQuit.setToolTip(_translate("MainWindow", "Shutdown program"))
-
     def load_image(self, image):
         if image is None:
             image = QtGui.QPixmap(500, 500)
@@ -518,6 +460,65 @@ class MainWindow(QtWidgets.QMainWindow):
             self.scene.redo()
         except IndexError:
             pass
+
+    def set_tool(self):
+        for btn in self.tool_buttons:
+            btn.setChecked(False)
+        self.sender().setChecked(True)
+        self.scene.tool = self.sender().text().lower()
+
+    def set_thickness(self):
+        self.thickness = self.sender().value()
+
+    def set_fill(self):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self.fill_color = color
+            self.sender().setStyleSheet('background-color: ' + color.name())
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
+        self.menuView.setTitle(_translate("MainWindow", "View"))
+        self.toolBox.setWindowTitle(_translate("MainWindow", "Tools"))
+        self.toolProperties.setWindowTitle(_translate("MainWindow", "Tool properties"))
+        self.colorManagement.setWindowTitle(_translate("MainWindow", "Color Management"))
+        self.red_lbl.setText(_translate("MainWindow", "R"))
+        self.green_lbl.setText(_translate("MainWindow", "G"))
+        self.blue_lbl.setText(_translate("MainWindow", "B"))
+        self.alpha_lbl_rgb.setText(_translate("MainWindow", "A"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.rgb_color_sliders), _translate("MainWindow", "RGB"))
+        self.hue_lbl.setText(_translate("MainWindow", "H"))
+        self.saturation_lbl.setText(_translate("MainWindow", "S"))
+        self.value_lbl.setText(_translate("MainWindow", "V"))
+        self.alpha_lbl_hsv.setText(_translate("MainWindow", "A"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.hsv_color_sliders), _translate("MainWindow", "HSV"))
+        self.color_pick_btn.setText(_translate("MainWindow", "Pick with dialog"))
+        self.actionColor_management.setText(_translate("MainWindow", "Color management"))
+        self.actionColor_management.setToolTip(_translate("MainWindow", "Color preset palette and custom color sliders"))
+        self.actionTools.setText(_translate("MainWindow", "Tools"))
+        self.actionTools.setToolTip(_translate("MainWindow", "Drawing tools"))
+        self.actionUndo.setText(_translate("MainWindow", "Undo"))
+        self.actionUndo.setToolTip(_translate("MainWindow", "Undo last action"))
+        self.actionRedo.setText(_translate("MainWindow", "Redo"))
+        self.actionRedo.setToolTip(_translate("MainWindow", "Redo last reverted action"))
+        self.actionSelect_all.setText(_translate("MainWindow", "Select all"))
+        self.actionSelect_all.setToolTip(_translate("MainWindow", "Select all pixels"))
+        self.actionDeselect.setText(_translate("MainWindow", "Deselect"))
+        self.actionDeselect.setToolTip(_translate("MainWindow", "Reset selection"))
+        self.actionInvert_selection.setText(_translate("MainWindow", "Invert selection"))
+        self.actionInvert_selection.setToolTip(_translate("MainWindow", "Selects only currently unselected pixels"))
+        self.actionNew.setText(_translate("MainWindow", "New"))
+        self.actionNew.setToolTip(_translate("MainWindow", "Create a new file and open it immediately"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionOpen.setToolTip(_translate("MainWindow", "Load an existing file"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionSave.setToolTip(_translate("MainWindow", "Save current file"))
+        self.actionQuit.setText(_translate("MainWindow", "Quit"))
+        self.actionQuit.setToolTip(_translate("MainWindow", "Shutdown program"))
+
 
 
 class NewFileDialog(QtWidgets.QDialog):

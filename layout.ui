@@ -20,8 +20,8 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
+   <layout class="QFormLayout" name="formLayout_3">
+    <item row="0" column="0">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
    </layout>
@@ -89,7 +89,9 @@
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="tools"/>
+   <widget class="QWidget" name="tools">
+    <layout class="QGridLayout" name="gridLayout_4"/>
+   </widget>
   </widget>
   <widget class="QDockWidget" name="toolProperties">
    <property name="windowTitle">
@@ -98,7 +100,9 @@
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="properties"/>
+   <widget class="QWidget" name="properties">
+    <layout class="QFormLayout" name="formLayout_4"/>
+   </widget>
   </widget>
   <widget class="QDockWidget" name="navigatorDock">
    <property name="windowTitle">
