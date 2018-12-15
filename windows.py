@@ -377,8 +377,19 @@ class MainWindow(QtWidgets.QMainWindow):
             image = QtGui.QPixmap(500, 500)
             image.fill(QtGui.QColor(255, 255, 255, 0))
             image = image.toImage()
-        self.scene.load_image(image)
-        self.viewport.setMaximumSize(image.size())
+            self.scene.load_image(image)
+            self.viewport.setMaximumSize(image.size())
+        else:
+            try:
+                with open(image):
+                    pass
+            except FileNotFoundError:
+                error = QtWidgets.QErrorMessage(self)
+                error.showMessage('Specified file does not exist!')
+            else:
+                image = QtGui.QImage(image)
+                self.scene.load_image(image)
+                self.viewport.setMaximumSize(image.size())
 
     def save(self):
         title = 'Pick a place to save your file'
@@ -445,11 +456,11 @@ class NewFileDialog(QtWidgets.QDialog):
         NewFileDialog.resize(280, 100)
         self.gridLayout = QtWidgets.QGridLayout(NewFileDialog)
         self.gridLayout.setObjectName("gridLayout")
-        self.view_btn = QtWidgets.QPushButton(NewFileDialog)
-        self.view_btn.setObjectName("view_btn")
-        self.view_btn.clicked.connect(self.setSourceFile)
-        self.view_btn.hide()
-        self.gridLayout.addWidget(self.view_btn, 7, 2, 1, 1)
+        self.browse_btn = QtWidgets.QPushButton(NewFileDialog)
+        self.browse_btn.setObjectName("browse")
+        self.browse_btn.clicked.connect(self.setSourceFile)
+        self.browse_btn.hide()
+        self.gridLayout.addWidget(self.browse_btn, 7, 2, 1, 1)
         self.buttonBox = QtWidgets.QDialogButtonBox(NewFileDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Vertical)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
@@ -481,7 +492,7 @@ class NewFileDialog(QtWidgets.QDialog):
     def retranslateUi(self, NewFileDialog):
         _translate = QtCore.QCoreApplication.translate
         NewFileDialog.setWindowTitle(_translate("NewFileDialog", "New file"))
-        self.view_btn.setText(_translate("NewFileDialog", "View"))
+        self.browse_btn.setText(_translate("NewFileDialog", "Browse"))
         self.open_radio.setText(_translate("NewFileDialog", "Open"))
         self.create_radio.setText(_translate("NewFileDialog", "Create"))
 
@@ -494,11 +505,11 @@ class NewFileDialog(QtWidgets.QDialog):
 
     def hideInput(self):
         self.source_input.hide()
-        self.view_btn.hide()
+        self.browse_btn.hide()
 
     def showInput(self):
         self.source_input.show()
-        self.view_btn.show()
+        self.browse_btn.show()
 
     def accept(self):
         super().accept()

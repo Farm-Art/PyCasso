@@ -10,69 +10,78 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.memory = []
 
     def mousePressEvent(self, event):
-        self.painter.begin(self.image)
-        pen = QtGui.QPen(self.window.current_color)
-        pen.setWidth(self.window.thickness)
-        self.painter.setPen(pen)
-        brush = QtGui.QBrush(self.window.fill_color)
-        self.painter.setBrush(brush)
-        if self.tool == 'pencil':
-            self.painter.drawPoint(event.scenePos())
-            self.prev_point = event.scenePos()
-        elif self.tool == 'rectangle':
-            self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
-            self.rect = self.addRect(self.rect)
-        elif self.tool == 'line':
-            self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
-            self.line = self.addLine(self.line)
-        elif self.tool == 'ellipse':
-            self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
-            self.ellipse = self.addEllipse(self.ellipse)
-        self.updateImage()
+        try:
+            self.painter.begin(self.image)
+            pen = QtGui.QPen(self.window.current_color)
+            pen.setWidth(self.window.thickness)
+            self.painter.setPen(pen)
+            brush = QtGui.QBrush(self.window.fill_color)
+            self.painter.setBrush(brush)
+            if self.tool == 'pencil':
+                self.painter.drawPoint(event.scenePos())
+                self.prev_point = event.scenePos()
+            elif self.tool == 'rectangle':
+                self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
+                self.rect = self.addRect(self.rect)
+            elif self.tool == 'line':
+                self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
+                self.line = self.addLine(self.line)
+            elif self.tool == 'ellipse':
+                self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
+                self.ellipse = self.addEllipse(self.ellipse)
+            self.updateImage()
+        except AttributeError:
+            pass
 
     def mouseMoveEvent(self, event):
-        if self.tool == 'pencil':
-            self.painter.drawPoint(event.scenePos())
-            self.painter.drawLine(self.prev_point, event.scenePos())
-            self.prev_point = event.scenePos()
-        elif self.tool == 'rectangle':
-            x1, y1 = min(max(0, self.rect.rect().x()), self.image.size().width() - 1),\
-                     min(max(0, self.rect.rect().y()), self.image.size().height() - 1)
-            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
-                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
-            w, h = x2 - x1, y2 - y1
-            self.rect.setRect(x1, y1, w, h)
-        elif self.tool == 'line':
-            x1, y1 = min(max(0, self.line.line().x1()), self.image.size().width() - 1),\
-                     min(max(0, self.line.line().y1()), self.image.size().height() - 1)
-            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
-                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
-            self.line.setLine(x1, y1, x2, y2)
-        elif self.tool == 'ellipse':
-            x1, y1 = min(max(0, self.ellipse.rect().x()), self.image.size().width() - 1),\
-                     min(max(0, self.ellipse.rect().y()), self.image.size().height() - 1)
-            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
-                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
-            w, h = x2 - x1, y2 - y1
-            self.ellipse.setRect(x1, y1, w, h)
-        self.updateImage()
+        try:
+            if self.tool == 'pencil':
+                self.painter.drawPoint(event.scenePos())
+                self.painter.drawLine(self.prev_point, event.scenePos())
+                self.prev_point = event.scenePos()
+            elif self.tool == 'rectangle':
+                x1, y1 = min(max(0, self.rect.rect().x()), self.image.size().width() - 1),\
+                         min(max(0, self.rect.rect().y()), self.image.size().height() - 1)
+                x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                         min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+                w, h = x2 - x1, y2 - y1
+                self.rect.setRect(x1, y1, w, h)
+            elif self.tool == 'line':
+                x1, y1 = min(max(0, self.line.line().x1()), self.image.size().width() - 1),\
+                         min(max(0, self.line.line().y1()), self.image.size().height() - 1)
+                x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                         min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+                self.line.setLine(x1, y1, x2, y2)
+            elif self.tool == 'ellipse':
+                x1, y1 = min(max(0, self.ellipse.rect().x()), self.image.size().width() - 1),\
+                         min(max(0, self.ellipse.rect().y()), self.image.size().height() - 1)
+                x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                         min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+                w, h = x2 - x1, y2 - y1
+                self.ellipse.setRect(x1, y1, w, h)
+            self.updateImage()
+        except AttributeError:
+            pass
 
     def mouseReleaseEvent(self, event):
-        if self.tool == 'pencil':
-            self.painter.end()
-        elif self.tool == 'rectangle':
-            self.removeItem(self.rect)
-            self.painter.drawRect(self.rect.rect())
-            self.painter.end()
-        elif self.tool == 'line':
-            self.removeItem(self.line)
-            self.painter.drawLine(self.line.line())
-            self.painter.end()
-        elif self.tool == 'ellipse':
-            self.removeItem(self.ellipse)
-            self.painter.drawEllipse(self.ellipse.rect())
-            self.painter.end()
-        self.updateImage()
+        try:
+            if self.tool == 'pencil':
+                self.painter.end()
+            elif self.tool == 'rectangle':
+                self.removeItem(self.rect)
+                self.painter.drawRect(self.rect.rect())
+                self.painter.end()
+            elif self.tool == 'line':
+                self.removeItem(self.line)
+                self.painter.drawLine(self.line.line())
+                self.painter.end()
+            elif self.tool == 'ellipse':
+                self.removeItem(self.ellipse)
+                self.painter.drawEllipse(self.ellipse.rect())
+                self.painter.end()
+            self.updateImage()
+        except AttributeError:
+            pass
 
     def load_image(self, image):
         self.image = QtGui.QImage(image)
