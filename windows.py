@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'layout.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from classes import FlowLayout, Canvas
 
@@ -13,7 +5,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        fileDialog = NewFileDialog(self)
+        dialog = NewFileDialog(self)
 
     def setupUi(self, MainWindow):
         self.setWindowTitle('PyCasso')
@@ -22,16 +14,17 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
         MainWindow.setDockNestingEnabled(True)
 
-        self.scene = Canvas()
+        self.current_color = QtGui.QColor(0, 0, 0)
+
+        self.scene = Canvas(self)
         self.viewport = QtWidgets.QGraphicsView(self.scene)
+        self.viewport.setMinimumSize(300, 300)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.central_layout= QtWidgets.QHBoxLayout(self.centralwidget)
+        self.central_layout = QtWidgets.QHBoxLayout(self.centralwidget)
         self.central_layout.addWidget(self.viewport)
-
-
-        self.current_color = QtGui.QColor(255, 255, 255)
+        MainWindow.setCentralWidget(self.centralwidget)
 
         self.initMenuBar()
         self.initToolbox()
@@ -54,8 +47,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuEdit.setObjectName("menuEdit")
         self.menuView = QtWidgets.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
-        self.menuSettings = QtWidgets.QMenu(self.menubar)
-        self.menuSettings.setObjectName("menuSettings")
         MainWindow.setMenuBar(self, self.menubar)
 
         self.statusbar = QtWidgets.QStatusBar(self)
@@ -81,15 +72,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLayers_2 = QtWidgets.QAction(self)
         self.actionLayers_2.setCheckable(True)
         self.actionLayers_2.setObjectName("actionLayers_2")
-
-        self.actionPreview_color = QtWidgets.QAction(self)
-        self.actionPreview_color.setCheckable(True)
-        self.actionPreview_color.setObjectName("actionPreview_color")
-
-        self.actionKeep_projects_loaded = QtWidgets.QAction(self)
-        self.actionKeep_projects_loaded.setCheckable(True)
-        self.actionKeep_projects_loaded.setObjectName(
-            "actionKeep_projects_loaded")
 
         self.actionUndo = QtWidgets.QAction(self)
         self.actionUndo.setObjectName("actionUndo")
@@ -117,9 +99,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionSave = QtWidgets.QAction(self)
         self.actionSave.setObjectName("actionSave")
-
-        self.actionSave_as = QtWidgets.QAction(self)
-        self.actionSave_as.setObjectName("actionSave_as")
+        self.actionSave.triggered.connect(self.save)
 
         self.actionQuit = QtWidgets.QAction(self)
         self.actionQuit.setObjectName("actionQuit")
@@ -130,7 +110,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuFile.addAction(self.actionConvert)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionSave_as)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuEdit.addAction(self.actionUndo)
@@ -144,12 +123,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuView.addAction(self.actionTools)
         self.menuView.addAction(self.actionLayers)
         self.menuView.addAction(self.actionLayers_2)
-        self.menuSettings.addAction(self.actionPreview_color)
-        self.menuSettings.addAction(self.actionKeep_projects_loaded)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
-        self.menubar.addAction(self.menuSettings.menuAction())
 
     def initToolbox(self):
         self.toolBox = QtWidgets.QDockWidget(self)
@@ -467,7 +443,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.menuView.setTitle(_translate("MainWindow", "View"))
-        self.menuSettings.setTitle(_translate("MainWindow", "Settings"))
         self.toolBox.setWindowTitle(_translate("MainWindow", "Tools"))
         self.toolProperties.setWindowTitle(_translate("MainWindow", "Tool properties"))
         self.navigatorDock.setWindowTitle(_translate("MainWindow", "Navigator"))
@@ -494,10 +469,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLayers.setToolTip(_translate("MainWindow", "Properties for currently selected tool"))
         self.actionLayers_2.setText(_translate("MainWindow", "Layers"))
         self.actionLayers_2.setToolTip(_translate("MainWindow", "Layer management (visibility, masks, channels)"))
-        self.actionPreview_color.setText(_translate("MainWindow", "Preview color"))
-        self.actionPreview_color.setToolTip(_translate("MainWindow", "Custom color is stored in the preview button instead of being applied immediately"))
-        self.actionKeep_projects_loaded.setText(_translate("MainWindow", "Keep files loaded"))
-        self.actionKeep_projects_loaded.setToolTip(_translate("MainWindow", "If several files are open, keep all of them loaded instead of only keeping current project in the memory (Increases switch speed, but may impact performance and stability)"))
         self.actionUndo.setText(_translate("MainWindow", "Undo"))
         self.actionUndo.setToolTip(_translate("MainWindow", "Undo last action"))
         self.actionRedo.setText(_translate("MainWindow", "Redo"))
@@ -516,10 +487,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionConvert.setToolTip(_translate("MainWindow", "Convert an existing file into a different format"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setToolTip(_translate("MainWindow", "Save current file"))
-        self.actionSave_as.setText(_translate("MainWindow", "Save as"))
-        self.actionSave_as.setToolTip(_translate("MainWindow", "Save current file as a different file"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setToolTip(_translate("MainWindow", "Shutdown program"))
+
+    def load_image(self, image):
+        if image is None:
+            image = QtGui.QImage()
+        self.scene.load_image(image)
+
+    def save(self):
+        title = 'Pick a place to save your file'
+        files = 'Image Files (*.png *.jpg *.jpeg *.bmp *.ppm *.xbm *.xpm)'
+        path, ok = QtWidgets.QFileDialog.getSaveFileName(self.parent(), caption=title,
+                                                         filter=files)
+        if ok:
+            self.scene.image.save(path)
 
 
 class NewFileDialog(QtWidgets.QDialog):
@@ -591,7 +573,7 @@ class NewFileDialog(QtWidgets.QDialog):
 
     def accept(self):
         super().accept()
-        return self.source_input.text(), True
+        self.parent().load_image(self.source_input.text() if self.open_radio.isChecked() else None)
 
 
 class OpacityFillDialog(QtWidgets.QDialog):
@@ -656,8 +638,4 @@ class OpacityFillDialog(QtWidgets.QDialog):
 
     def accept(self):
         super().accept()
-        return self.color
-
-    def reject(self):
-        super().reject()
         return self.color

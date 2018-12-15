@@ -2,12 +2,38 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 class Canvas(QtWidgets.QGraphicsScene):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.window = parent
         self.tool = 'pencil'
+        self.painter = QtGui.QPainter()
 
     def mousePressEvent(self, event):
-        pass
+        self.painter.begin(self.image)
+        if self.tool == 'pencil':
+            pen = QtGui.QPen(self.window.current_color)
+            pen.setWidth(5)
+            self.painter.setPen(pen)
+            self.painter.drawPoint(event.scenePos())
+            self.prev_point = event.scenePos()
+
+    def mouseMoveEvent(self, event):
+        if self.tool == 'pencil':
+            self.painter.drawPoint(event.scenePos())
+            self.painter.drawLine(self.prev_point, event.scenePos())
+            self.prev_point = event.scenePos()
+        self.removeItem(self.display_image)
+        self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
+        self.addItem(self.display_image)
+
+    def mouseReleaseEvent(self, event):
+        if self.tool == 'pencil':
+            self.painter.end()
+
+    def load_image(self, image):
+        self.image = QtGui.QImage(image)
+        self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
+        self.addItem(self.display_image)
 
 
 class FlowLayout(QtWidgets.QLayout):
