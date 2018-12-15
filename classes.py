@@ -15,8 +15,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             pen = QtGui.QPen(self.window.current_color)
             pen.setWidth(self.window.thickness)
             self.painter.setPen(pen)
-            brush = QtGui.QBrush(self.window.fill_color)
-            self.painter.setBrush(brush)
+            # brush = QtGui.QBrush(self.window.fill_color)
+            # self.painter.setBrush(brush)
             if self.tool == 'pencil':
                 self.painter.drawPoint(event.scenePos())
                 self.prev_point = event.scenePos()
