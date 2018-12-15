@@ -75,9 +75,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionUndo = QtWidgets.QAction(self)
         self.actionUndo.setObjectName("actionUndo")
+        self.actionUndo.triggered.connect(self.undo)
+        self.actionUndo.setShortcut('Ctrl+Z')
 
         self.actionRedo = QtWidgets.QAction(self)
         self.actionRedo.setObjectName("actionRedo")
+        self.actionRedo.triggered.connect(self.redo)
+        self.actionRedo.setShortcut('Ctrl+Y')
 
         self.actionSelect_all = QtWidgets.QAction(self)
         self.actionSelect_all.setObjectName("actionSelect_all")
@@ -94,9 +98,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOpen = QtWidgets.QAction(self)
         self.actionOpen.setObjectName("actionOpen")
 
-        self.actionConvert = QtWidgets.QAction(self)
-        self.actionConvert.setObjectName("actionConvert")
-
         self.actionSave = QtWidgets.QAction(self)
         self.actionSave.setObjectName("actionSave")
         self.actionSave.triggered.connect(self.save)
@@ -107,7 +108,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.actionConvert)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addSeparator()
@@ -483,8 +483,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionNew.setToolTip(_translate("MainWindow", "Create a new file and open it immediately"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionOpen.setToolTip(_translate("MainWindow", "Load an existing file"))
-        self.actionConvert.setText(_translate("MainWindow", "Convert"))
-        self.actionConvert.setToolTip(_translate("MainWindow", "Convert an existing file into a different format"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setToolTip(_translate("MainWindow", "Save current file"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
@@ -492,8 +490,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def load_image(self, image):
         if image is None:
-            image = QtGui.QImage()
+            image = QtGui.QPixmap(500, 500)
+            image.fill(QtGui.QColor(255, 255, 255, 0))
+            image = image.toImage()
         self.scene.load_image(image)
+        self.viewport.setMaximumSize(image.size())
 
     def save(self):
         title = 'Pick a place to save your file'
@@ -502,6 +503,20 @@ class MainWindow(QtWidgets.QMainWindow):
                                                          filter=files)
         if ok:
             self.scene.image.save(path)
+
+    def undo(self):
+        try:
+            self.scene.undo()
+        except IndexError:
+            pass
+        except TypeError:
+            pass
+
+    def redo(self):
+        try:
+            self.scene.redo()
+        except IndexError:
+            pass
 
 
 class NewFileDialog(QtWidgets.QDialog):
@@ -634,7 +649,7 @@ class OpacityFillDialog(QtWidgets.QDialog):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("OpacityFillDialog", "Alpha layer is not supported"))
-        self.label.setText(_translate("Dialog", "Chosen format does not support alpha-channels (opacity). Pick a background color to fill the blank spots, or save the file in another format."))
+        self.label.setText(_translate("Dialog", "Chosen format does not support alpha-channels (opacity). You can save the ."))
 
     def accept(self):
         super().accept()

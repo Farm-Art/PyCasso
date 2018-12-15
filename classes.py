@@ -5,8 +5,9 @@ class Canvas(QtWidgets.QGraphicsScene):
     def __init__(self, parent):
         super().__init__()
         self.window = parent
-        self.tool = 'pencil'
+        self.tool = 'line'
         self.painter = QtGui.QPainter()
+        self.memory = []
 
     def mousePressEvent(self, event):
         self.painter.begin(self.image)
@@ -16,22 +17,65 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.painter.setPen(pen)
             self.painter.drawPoint(event.scenePos())
             self.prev_point = event.scenePos()
+        elif self.tool == 'rectangle':
+            pen = QtGui.QPen(self.window.current_color)
+            self.painter.setPen(pen)
+            self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
+            self.rect = self.addRect(self.rect)
+        elif self.tool == 'line':
+            pen = QtGui.QPen(self.window.current_color)
+            self.painter.setPen(pen)
+            self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
+            self.line = self.addLine(self.line)
+        self.updateImage()
 
     def mouseMoveEvent(self, event):
         if self.tool == 'pencil':
             self.painter.drawPoint(event.scenePos())
             self.painter.drawLine(self.prev_point, event.scenePos())
             self.prev_point = event.scenePos()
-        self.removeItem(self.display_image)
-        self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
-        self.addItem(self.display_image)
+        elif self.tool == 'rectangle':
+            x1, y1 = min(max(0, self.rect.rect().x()), self.image.size().width() - 1),\
+                     min(max(0, self.rect.rect().y()), self.image.size().height() - 1)
+            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+            w, h = x2 - x1, y2 - y1
+            self.rect.setRect(x1, y1, w, h)
+        elif self.tool == 'line':
+            x1, y1 = min(max(0, self.line.line().x1()), self.image.size().width() - 1),\
+                     min(max(0, self.line.line().y1()), self.image.size().height() - 1)
+            x2, y2 = min(max(0, event.scenePos().x()), self.image.size().width() - 1),\
+                     min(max(0, event.scenePos().y()), self.image.size().height() - 1)
+            self.line.setLine(x1, y1, x2, y2)
+        self.updateImage()
 
     def mouseReleaseEvent(self, event):
         if self.tool == 'pencil':
             self.painter.end()
+        elif self.tool == 'rectangle':
+            self.removeItem(self.rect)
+            self.painter.drawRect(self.rect.rect())
+            self.painter.end()
+        elif self.tool == 'line':
+            self.removeItem(self.line)
+            self.painter.drawLine(self.line.line())
+            self.painter.end()
+        self.updateImage()
 
     def load_image(self, image):
         self.image = QtGui.QImage(image)
+        self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
+        self.addItem(self.display_image)
+        self.memory.append(self.image.copy())
+
+    def undo(self):
+        pass
+
+    def redo(self):
+        pass
+
+    def updateImage(self):
+        self.removeItem(self.display_image)
         self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
         self.addItem(self.display_image)
 
