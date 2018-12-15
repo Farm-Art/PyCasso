@@ -437,7 +437,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = NewFileDialog(self)
 
         self.viewport.close()
-        self.scene.clear()
+        self.scene = Canvas(self)
         self.viewport = QtWidgets.QGraphicsView(self.scene, self)
         self.central_layout.addWidget(self.viewport)
         self.viewport.show()
