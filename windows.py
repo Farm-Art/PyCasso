@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from classes import FlowLayout, Canvas
+from classes import FlowLayout, Canvas, ViewPort
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -19,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fill_color = QtGui.QColor(255, 255, 255)
 
         self.scene = Canvas(self)
-        self.viewport = QtWidgets.QGraphicsView(self.scene)
+        self.viewport = ViewPort(self.scene)
         self.viewport.setMinimumSize(300, 300)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -462,10 +462,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.viewport.close()
         self.scene = Canvas(self)
-        self.viewport = QtWidgets.QGraphicsView(self.scene, self)
+        self.viewport = ViewPort(self.scene, self)
         self.central_layout.addWidget(self.viewport)
         self.viewport.show()
         self.viewport.setMinimumSize(300, 300)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Plus:
+            self.viewport.zoomIn()
+        elif event.key() == QtCore.Qt.Key_Minus:
+            self.viewport.zoomOut()
+
+    # def wheelEvent(self, event):
+    #     if QtCore.Qt.ControlModifier == event.modifiers():
+    #         steps = abs(event.angleDelta().y() // 8 // 15)
+    #         for i in range(steps):
+    #             if event.angleDelta().y() > 0:
+    #                 self.viewport.zoomIn()
+    #             elif event.angleDelta().y() < 0:
+    #                 self.viewport.zoomOut()
+
 
 
 class NewFileDialog(QtWidgets.QDialog):

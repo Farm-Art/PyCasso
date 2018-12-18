@@ -14,6 +14,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.painter.begin(self.image)
             pen = QtGui.QPen(self.window.current_color)
             pen.setWidth(self.window.thickness)
+            pen.setJoinStyle(QtCore.Qt.RoundJoin)
+            pen.setCapStyle(QtCore.Qt.RoundCap)
             self.painter.setPen(pen)
             brush = QtGui.QBrush(self.window.fill_color)
             self.painter.setBrush(brush)
@@ -103,6 +105,14 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
         self.addItem(self.display_image)
         self.display_image.setZValue(-1000.0)
+
+
+class ViewPort(QtWidgets.QGraphicsView):
+    def zoomIn(self):
+        self.scale(1.2, 1.2)
+
+    def zoomOut(self):
+        self.scale(1 / 1.2, 1 / 1.2)
 
 
 class FlowLayout(QtWidgets.QLayout):
