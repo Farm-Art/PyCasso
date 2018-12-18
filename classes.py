@@ -23,12 +23,21 @@ class Canvas(QtWidgets.QGraphicsScene):
             elif self.tool == 'rectangle':
                 self.rect = QtCore.QRectF(event.scenePos(), event.scenePos())
                 self.rect = self.addRect(self.rect)
+                self.rect.setPen(pen)
+                self.rect.setBrush(brush)
+                self.rect.setZValue(1000.0)
             elif self.tool == 'line':
                 self.line = QtCore.QLineF(event.scenePos(), event.scenePos())
                 self.line = self.addLine(self.line)
+                self.line.setPen(pen)
+                self.line.setBrush(brush)
+                self.line.setZValue(1000.0)
             elif self.tool == 'ellipse':
                 self.ellipse = QtCore.QRectF(event.scenePos(), event.scenePos())
                 self.ellipse = self.addEllipse(self.ellipse)
+                self.ellipse.setPen(pen)
+                self.ellipse.setBrush(brush)
+                self.ellipse.setZValue(1000.0)
             self.updateImage()
         except AttributeError:
             pass
@@ -93,6 +102,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.removeItem(self.display_image)
         self.display_image = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
         self.addItem(self.display_image)
+        self.display_image.setZValue(-1000.0)
 
 
 class FlowLayout(QtWidgets.QLayout):
