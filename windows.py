@@ -94,15 +94,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.properties.setObjectName("properties")
 
         self.properties_form = QtWidgets.QFormLayout(self.properties)
-        self.thickness_lbl = QtWidgets.QLabel('Thickness', self)
 
         self.thickness_slider = QtWidgets.QSlider(self)
         self.thickness_slider.setOrientation(QtCore.Qt.Horizontal)
         self.thickness_slider.setMinimum(1)
         self.thickness_slider.setMaximum(50)
         self.thickness_slider.valueChanged.connect(self.set_thickness)
-        self.properties_form.addWidget(self.thickness_lbl)
-        self.properties_form.addWidget(self.thickness_slider)
+        self.properties_form.addRow('Thickness', self.thickness_slider)
+
+        self.fill_btn = QtWidgets.QPushButton(self.properties)
+        self.fill_btn.setMaximumSize(20, 20)
+        self.fill_btn.setMinimumSize(20, 20)
+        self.fill_btn.clicked.connect(self.set_fill)
+        self.fill_btn.setStyleSheet('background-color: #FFFFFF')
+        self.properties_form.addRow('Fill color', self.fill_btn)
+
+        self.fill_alpha_slider = QtWidgets.QSlider(self.properties)
+        self.fill_alpha_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.fill_alpha_slider.setMaximum(255)
+        self.fill_alpha_slider.setMinimum(0)
+        self.fill_alpha_slider.setValue(255)
+        self.fill_alpha_slider.valueChanged.connect(self.set_fill_alpha)
+        self.properties_form.addRow('Fill alpha', self.fill_alpha_slider)
+
         self.toolProperties.setWidget(self.properties)
         MainWindow.addDockWidget(self, QtCore.Qt.DockWidgetArea(1), self.toolProperties)
 
@@ -407,6 +421,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_thickness(self):
         self.thickness = self.sender().value()
+
+    def set_fill(self):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self.sender().setStyleSheet('background-color: ' + color.name())
+            self.fill_color = color
+            self.fill_color.setAlpha(self.fill_alpha_slider.value())
+
+    def set_fill_alpha(self):
+        self.fill_color.setAlpha(self.sender().value())
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
