@@ -467,22 +467,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.viewport.show()
         self.viewport.setMinimumSize(300, 300)
 
-    def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Plus:
-            self.viewport.zoomIn()
-        elif event.key() == QtCore.Qt.Key_Minus:
-            self.viewport.zoomOut()
-
-    # def wheelEvent(self, event):
-    #     if QtCore.Qt.ControlModifier == event.modifiers():
-    #         steps = abs(event.angleDelta().y() // 8 // 15)
-    #         for i in range(steps):
-    #             if event.angleDelta().y() > 0:
-    #                 self.viewport.zoomIn()
-    #             elif event.angleDelta().y() < 0:
-    #                 self.viewport.zoomOut()
-
-
 
 class NewFileDialog(QtWidgets.QDialog):
     def __init__(self, parent):

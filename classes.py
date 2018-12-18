@@ -114,6 +114,25 @@ class ViewPort(QtWidgets.QGraphicsView):
     def zoomOut(self):
         self.scale(1 / 1.2, 1 / 1.2)
 
+    def wheelEvent(self, event):
+        if QtCore.Qt.ControlModifier == event.modifiers():
+            steps = abs(event.angleDelta().y() // 8 // 15)
+            for i in range(steps):
+                if event.angleDelta().y() > 0:
+                    self.zoomIn()
+                elif event.angleDelta().y() < 0:
+                    self.zoomOut()
+        else:
+            super().wheelEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Plus:
+            self.zoomIn()
+        elif event.key() == QtCore.Qt.Key_Minus:
+            self.zoomOut()
+        else:
+            super().keyPressEvent(event)
+
 
 class FlowLayout(QtWidgets.QLayout):
     def __init__(self, parent=None, margin=-1, hspacing=-1, vspacing=-1):
