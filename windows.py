@@ -464,6 +464,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.scene = Canvas(self)
         self.viewport = ViewPort(self.scene, self)
         self.central_layout.addWidget(self.viewport)
+        for button in self.tool_buttons:
+            button.setChecked(False)
+        self.tool_buttons[0].setChecked(True)
         self.viewport.show()
         self.viewport.setMinimumSize(300, 300)
 
